@@ -1,8 +1,13 @@
 <?php
 
-use App\Http\Controllers\IssueController;
+use App\Http\Controllers\Issue\IssueController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+
+Route::get('/svelte-test', function () {
+    return Inertia::render('svelte-test');
+});
 
 Route::get('/password', function () {
     return view('auth.password');
@@ -24,6 +29,8 @@ Route::post('/password', function () {
 
     return back()->with('error', 'Password salah.');
 })->name('app.password.submit');
+
+
 
 Route::middleware(['app.password'])->group(function () {
     Route::get('/', [IssueController::class, 'index'])->name('home');
