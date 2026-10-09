@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\EmailOTPController;
 use App\Http\Controllers\Issue\IssueController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -9,26 +10,36 @@ Route::get('/svelte-test', function () {
     return Inertia::render('svelte-test');
 });
 
-Route::get('/password', function () {
-    return view('auth.password');
-})->name('app.password');
+Route::get('/otp', [EmailOTPController::class, 'index'])->middleware('guest');
 
-Route::get('/user-manual', function () {
-    return view('manual.user-manual');
-})->name('user.manual');
+Route::post('/otp/request', [EmailOTPController::class, 'otpRequest'])
+    ->middleware('throttle:3,1') 
+    ->name('otp.request');
 
-Route::post('/password', function () {
-    $expectedPassword = env('APP_PASSWORD', 'issueboard123');
-    $password = request('password');
+Route::post('/otp/verify', [EmailOTPController::class, 'verifyOtp'])
+    ->middleware('throttle:5,1')
+    ->name('otp.verify');
 
-    if ($password === $expectedPassword) {
-        session(['app_password_verified' => true]);
+// Route::get('/password', function () {
+//     return view('auth.password');
+// })->name('app.password');
 
-        return redirect()->route('home');
-    }
+// Route::get('/user-manual', function () {
+//     return view('manual.user-manual');
+// })->name('user.manual');
 
-    return back()->with('error', 'Password salah.');
-})->name('app.password.submit');
+// Route::post('/password', function () {
+//     $expectedPassword = env('APP_PASSWORD', 'issueboard123');
+//     $password = request('password');
+
+//     if ($password === $expectedPassword) {
+//         session(['app_password_verified' => true]);
+
+//         return redirect()->route('home');
+//     }
+
+//     return back()->with('error', 'Password salah.');
+// })->name('app.password.submit');
 
 
 
