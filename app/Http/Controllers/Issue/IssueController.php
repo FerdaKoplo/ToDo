@@ -1,20 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Issue;
 
+use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Issue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
+use Storage;
 
 class IssueController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $query = Issue::with('department')
             ->orderByDesc('issue_date')
@@ -45,11 +42,10 @@ class IssueController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create()
     {
         return view('issues.form', [
             'issue' => null,
-            'departments' => Department::orderBy('name')->get(),
         ]);
     }
 
@@ -79,7 +75,7 @@ class IssueController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Issue $issue): View
+    public function show(Issue $issue)
     {
         return view('issues.show', compact('issue'));
     }
@@ -87,7 +83,7 @@ class IssueController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Issue $issue): View
+    public function edit(Issue $issue)
     {
         return view('issues.form', [
             'issue' => $issue,

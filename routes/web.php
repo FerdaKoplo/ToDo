@@ -1,48 +1,68 @@
 <?php
 
-use App\Http\Controllers\IssueController;
+use App\Http\Controllers\Auth\EmailOTPController;
+use App\Http\Controllers\Issue\IssueController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
-Route::get('/password', function () {
-    return view('auth.password');
-})->name('app.password');
-
-Route::get('/user-manual', function () {
-    return view('manual.user-manual');
-})->name('user.manual');
-
-Route::post('/password', function () {
-    $expectedPassword = env('APP_PASSWORD', 'issueboard123');
-    $password = request('password');
-
-    if ($password === $expectedPassword) {
-        session(['app_password_verified' => true]);
-
-        return redirect()->route('home');
-    }
-
-    return back()->with('error', 'Password salah.');
-})->name('app.password.submit');
-
-Route::middleware(['app.password'])->group(function () {
-    Route::get('/', [IssueController::class, 'index'])->name('home');
-
-    Route::get('/issue-image/{path}', function (string $path) {
-        $disk = config('filesystems.default', 'public');
-        $normalizedPath = str_replace(['\\', '../', '..\\'], ['/', '', ''], $path);
-        $storage = Storage::disk($disk);
-
-        if (!$storage->exists($normalizedPath)) {
-            abort(404);
-        }
-
-        if ($storage->getAdapter() instanceof \League\Flysystem\Local\LocalFilesystemAdapter) {
-            return response()->file($storage->path($normalizedPath));
-        }
-
-        return $storage->response($normalizedPath);
-    })->where('path', '.*')->name('issue.image');
-
-    Route::resource('issues', IssueController::class);
+Route::get('/svelte-test', function () {
+    return Inertia::render('svelte-test');
 });
+
+Route::get('/otp', [EmailOTPController::class, 'index'])->middleware('guest');
+
+Route::post('/otp/request', [EmailOTPController::class, 'otpRequest'])
+    ->middleware('throttle:3,1')
+    ->name('otp.request');
+
+Route::post('/otp/resend', [EmailOTPController::class, 'resendOTP'])
+    ->middleware('throttle:3,1')
+    ->name('otp.resend');
+
+Route::post('/otp/verify', [EmailOTPController::class, 'verifyOtp'])
+    ->middleware('throttle:5,1')
+    ->name('otp.verify');
+
+// Route::get('/password', function () {
+//     return view('auth.password');
+// })->name('app.password');
+
+// Route::get('/user-manual', function () {
+//     return view('manual.user-manual');
+// })->name('user.manual');
+
+// Route::post('/password', function () {
+//     $expectedPassword = env('APP_PASSWORD', 'issueboard123');
+//     $password = request('password');
+
+//     if ($password === $expectedPassword) {
+//         session(['app_password_verified' => true]);
+
+//         return redirect()->route('home');
+//     }
+
+//     return back()->with('error', 'Password salah.');
+// })->name('app.password.submit');
+
+// Route::middleware(['app.password'])->group(function () {
+//     Route::get('/', [IssueController::class, 'index'])->name('home');
+//
+//     Route::get('/issue-image/{path}', function (string $path) {
+//         $disk = config('filesystems.default', 'public');
+//         $normalizedPath = str_replace(['\\', '../', '..\\'], ['/', '', ''], $path);
+//         $storage = Storage::disk($disk);
+//
+//         if (!$storage->exists($normalizedPath)) {
+//             abort(404);
+//         }
+//
+//         if ($storage->getAdapter() instanceof \League\Flysystem\Local\LocalFilesystemAdapter) {
+//             return response()->file($storage->path($normalizedPath));
+//         }
+//
+//         return $storage->response($normalizedPath);
+//     })->where('path', '.*')->name('issue.image');
+//
+//     Route::resource('issues', IssueController::class);
+// });
