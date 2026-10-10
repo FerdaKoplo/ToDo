@@ -7,14 +7,12 @@ use App\Models\User;
 use Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\OneTimePasswords\Enums\ConsumeOneTimePasswordResult;
 
 class EmailOTPController extends Controller
 {
-
-    public function index(){
+    public function index()
+    {
         return Inertia::render('auth/login');
-
     }
 
     public function otpRequest(Request $request)
@@ -22,9 +20,8 @@ class EmailOTPController extends Controller
         $request->validate(['email' => 'required|email|exists:users,email']);
         $user = User::where('email', $request->email)->firstOrFail();
 
-        if ($user) {
-            $user->sendOneTimePassword();
-        }
+        $user->sendOneTimePassword();
+        session(['login_email' => $request->email]);
 
         return back()->with('success', 'If this email is registered, an OTP has been sent.');
     }
@@ -38,10 +35,9 @@ class EmailOTPController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        if (!$user) {
+        if (! $user) {
             return back()->withErrors(['otp' => 'Invalid email or OTP.']);
         }
-        ;
 
         $result = $user->attemptLoginUsingOneTimePassword($request->otp);
 
@@ -49,12 +45,26 @@ class EmailOTPController extends Controller
             Auth::login($user);
 
             $request->session()->regenerate();
+
             return redirect()->intended(route('dashboard'));
         }
-        ;
 
         return back()->withErrors([
             'otp' => 'The provided OTP is invalid or has expired.',
         ]);
+    }
+
+    public function resendOTP()
+    {
+        $email = session('login_email');
+
+        if (! $email) {
+            return back()->withErrors(['email' => 'Session expired. Please request a new OTP.']);
+        }
+
+        $user = User::where('email', $email)->firstOrFail();
+        $user->sendOneTimePassword();
+
+        return back()->with('success', 'A new OTP has been sent.');
     }
 }

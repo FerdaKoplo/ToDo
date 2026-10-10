@@ -4,7 +4,7 @@ import { createInertiaApp } from '@inertiajs/svelte';
 import { mount } from 'svelte';
 
 await createInertiaApp({
-    resolve: (name) => {
+    resolve : (name) => {
         const pages = import.meta.glob('./pages/**/*.svelte', {
             eager: true,
         });
@@ -16,7 +16,7 @@ await createInertiaApp({
         }
 
         console.log('Page module found:', page);
-        console.log('Returning default export:', page.default);
+        console.log('Returning default export:', page);
         return page
     },
 

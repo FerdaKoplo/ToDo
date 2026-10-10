@@ -8,7 +8,6 @@ use App\Models\Issue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Storage;
-use View;
 
 class IssueController extends Controller
 {

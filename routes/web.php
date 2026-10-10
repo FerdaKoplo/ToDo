@@ -13,8 +13,12 @@ Route::get('/svelte-test', function () {
 Route::get('/otp', [EmailOTPController::class, 'index'])->middleware('guest');
 
 Route::post('/otp/request', [EmailOTPController::class, 'otpRequest'])
-    ->middleware('throttle:3,1') 
+    ->middleware('throttle:3,1')
     ->name('otp.request');
+
+Route::post('/otp/resend', [EmailOTPController::class, 'resendOTP'])
+    ->middleware('throttle:3,1')
+    ->name('otp.resend');
 
 Route::post('/otp/verify', [EmailOTPController::class, 'verifyOtp'])
     ->middleware('throttle:5,1')
@@ -41,26 +45,24 @@ Route::post('/otp/verify', [EmailOTPController::class, 'verifyOtp'])
 //     return back()->with('error', 'Password salah.');
 // })->name('app.password.submit');
 
-
-
-Route::middleware(['app.password'])->group(function () {
-    Route::get('/', [IssueController::class, 'index'])->name('home');
-
-    Route::get('/issue-image/{path}', function (string $path) {
-        $disk = config('filesystems.default', 'public');
-        $normalizedPath = str_replace(['\\', '../', '..\\'], ['/', '', ''], $path);
-        $storage = Storage::disk($disk);
-
-        if (!$storage->exists($normalizedPath)) {
-            abort(404);
-        }
-
-        if ($storage->getAdapter() instanceof \League\Flysystem\Local\LocalFilesystemAdapter) {
-            return response()->file($storage->path($normalizedPath));
-        }
-
-        return $storage->response($normalizedPath);
-    })->where('path', '.*')->name('issue.image');
-
-    Route::resource('issues', IssueController::class);
-});
+// Route::middleware(['app.password'])->group(function () {
+//     Route::get('/', [IssueController::class, 'index'])->name('home');
+//
+//     Route::get('/issue-image/{path}', function (string $path) {
+//         $disk = config('filesystems.default', 'public');
+//         $normalizedPath = str_replace(['\\', '../', '..\\'], ['/', '', ''], $path);
+//         $storage = Storage::disk($disk);
+//
+//         if (!$storage->exists($normalizedPath)) {
+//             abort(404);
+//         }
+//
+//         if ($storage->getAdapter() instanceof \League\Flysystem\Local\LocalFilesystemAdapter) {
+//             return response()->file($storage->path($normalizedPath));
+//         }
+//
+//         return $storage->response($normalizedPath);
+//     })->where('path', '.*')->name('issue.image');
+//
+//     Route::resource('issues', IssueController::class);
+// });

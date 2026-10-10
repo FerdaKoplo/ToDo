@@ -13,6 +13,7 @@
         "spatie/laravel-one-time-passwords": "^1.1"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.23",
         "laravel/boost": "^2.10",
         "laravel/pail": "^1.2.5",
